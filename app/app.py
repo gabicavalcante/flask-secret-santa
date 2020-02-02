@@ -9,7 +9,7 @@ def create_app():
     # initialize the FlaskDynaconf extension in our app
     FlaskDynaconf(app)
 
-    from app.models import db, Draw
+    from app.models import db
 
     db.init_app(app)
     Migrate(app, db)

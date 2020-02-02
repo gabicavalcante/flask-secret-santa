@@ -5,6 +5,9 @@
 ## SECRETS ##
 .secrets.toml
 
+## SQLite
+*.db
+
 ### Flask ###
 instance/*
 !instance/.gitignore
