@@ -2,13 +2,13 @@
 DEBUG = false
 CSRF_ENABLED = true
 SQLALCHEMY_TRACK_MODIFICATIONS = false
-TITLE = "Fizz Buzz Bot" 
+TITLE = "Secret Santa Bot" 
  
 [development]
 DEVELOPMENT = true
 DEBUG = true
 SQLALCHEMY_TRACK_MODIFICATIONS = true
-SQLALCHEMY_DATABASE_URI="mysql://root:p@ssw0rd123@db/santasecret" 
+SQLALCHEMY_DATABASE_URI="sqlite:///development.db" 
  
 [production]
 DEBUG = false 
