@@ -1,0 +1,45 @@
+version: "3"
+services:
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: p@ssw0rd123
+      MYSQL_DATABASE: santasecret
+    volumes:
+      - /var/lib/mysql
+
+  dbtest:
+    image: mysql:5.7
+    ports:
+      - "3305:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: p@ssw0rd123
+      MYSQL_DATABASE: santasecret_test
+    volumes:
+      - /var/lib/mysql
+
+  santasecret:
+    image: python:3.7
+    links:
+      - db
+    env_file:
+      - .env
+    expose:
+      - 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/santasecret
+    restart: always
+    environment:
+      FLASK_ENV: "production"
+    command: >
+      bash -c "cd /santasecret && 
+      pip install -r requirements.txt && 
+      flask db upgrade && 
+      flask add-user -u admin -p admin &&
+      flask run --host 0.0.0.0"
