@@ -46,3 +46,5 @@ def get_response(message, number, draw):
 
         Draw.create(responsable_number=number)
         db.session.commit()
+
+        return response
