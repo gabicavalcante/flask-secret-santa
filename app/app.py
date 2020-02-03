@@ -15,7 +15,8 @@ def create_app():
     Migrate(app, db)
 
     from app.admin import admin
-    admin.init_app(app) 
+
+    admin.init_app(app)
 
     from app.routes import bot
 

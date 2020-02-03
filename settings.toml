@@ -8,7 +8,9 @@ TITLE = "Secret Santa Bot"
 DEVELOPMENT = true
 DEBUG = true
 SQLALCHEMY_TRACK_MODIFICATIONS = true
-SQLALCHEMY_DATABASE_URI="sqlite:///development.db" 
+SQLALCHEMY_DATABASE_URI="mysql://root:p@ssw0rd123@0.0.0.0:3306/secretsanta_db"
+# SQLALCHEMY_DATABASE_URI="sqlite:///development.sqlite"
  
 [production]
 DEBUG = false 
+SQLALCHEMY_DATABASE_URI="mysql://root:p@ssw0rd123@db/secretsanta_db"
