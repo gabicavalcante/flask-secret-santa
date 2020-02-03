@@ -16,18 +16,6 @@ This is a simple python bot to to draw names and send a text message to the part
 
 ## setup
 
-### create and configure .env file
-
-```
-$ cp .env.sample .env
-```
-
-add the env vars:
-
-```
-FLASK_APP=secretsanta.app:create_app
-SECRET_KEY="71b40786-c246-47c9-b3b1-cabe6917e0f6"
-FLASK_ENV=development
 ```
 
 ### create and configure .secrets.toml
@@ -38,10 +26,7 @@ $ cp .secrets.toml.sample .secrets.toml
 
 ```
 [default]
-CSRF_SESSION_KEY = ""
-JWT_SECRET_KEY = ""
-TELEGRAM_BOT_TOKEN = ""
-BOT_HOST = "https://"
+SECRET_KEY = "the-most-secret-key-in-the-world"
 ```
 
 ### configure the .settings.toml
@@ -90,11 +75,9 @@ $ pyenv activate secretsanta
 
 ```
 $ cd secretsanta
-$ pip install -r requirements-dev.txt
+$ pip install -r requirements.txt
 ```
-
-_note_: `requirements-dev.txt` has all requirements packages to test, coverage and lint. If you don't want this packages, just run `pip install -r requirements.txt`.
-
+ 
 #### migrate
 
 ```
