@@ -16,8 +16,6 @@ This is a simple python bot to to draw names and send a text message to the part
 
 ## setup
 
-```
-
 ### create and configure .secrets.toml
 
 ```
@@ -77,7 +75,7 @@ $ pyenv activate secretsanta
 $ cd secretsanta
 $ pip install -r requirements.txt
 ```
- 
+
 #### migrate
 
 ```
