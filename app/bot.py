@@ -1,5 +1,5 @@
 from twilio.twiml.messaging_response import MessagingResponse
-from app.models import db, Draw
+from app.models import db, Draw, Participant
 
 
 def send_message(response):
@@ -21,11 +21,11 @@ def get_response(message, number, draw):
         response.append("'run draw' - run the draw")
         return response
 
-    if draw and draw.in_processe and message == "run draw":
+    if draw and draw.in_process and message == "run draw":
         draw.run()
-        return "draw done!"
+        return ["draw done!"]
 
-    if draw and draw.in_processe:
+    if draw and draw.in_process:
         message_parts = message.split(",")
         if len(message_parts) != 2:
             response.append(
@@ -34,17 +34,24 @@ def get_response(message, number, draw):
             return response
         participant_name = message_parts[0].strip()
         participant_number = message_parts[1].strip()
-        draw.add_paricipant(participant_name, participant_number)
+        participant = Participant.find_or_create(participant_name, participant_number)
+        db.session.add(participant)
+
+        draw.participants.append(participant)
         db.session.commit()
 
+        response.append(f"{participant_name} was add!")
+        return response
+
     if message == "create draw":
+        response.append("Hey! You created a new draw!")
         response.append(
-            "Create a new draw by texting the name of the participants in the form {participant name}, {phone number}."
+            "Now, you need to texting the name of the participants in the form {participant name}, {phone number}."
         )
         response.append("For example 'Petter, +55 84 981231144'")
         response.append("When you finish, texting 'run draw'.")
 
-        Draw.create(responsable_number=number)
+        Draw.create(responsible_number=number)
         db.session.commit()
 
         return response
