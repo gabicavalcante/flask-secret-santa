@@ -8,18 +8,14 @@ def create_app(**config):
 
     # initialize the FlaskDynaconf extension in our app
     FlaskDynaconf(app, **config)
-
     from app.models import db
 
     db.init_app(app)
     Migrate(app, db)
-
     from app.admin import admin
 
     admin.init_app(app)
-
     from app.routes import bot
-
     app.register_blueprint(bot)
 
     return app
