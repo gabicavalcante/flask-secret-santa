@@ -2,7 +2,7 @@
 DEBUG = false
 CSRF_ENABLED = true
 SQLALCHEMY_TRACK_MODIFICATIONS = false
-TITLE = "Secret Santa Bot"  
+TITLE = "Flask Secret Santa"  
  
 [development]
 DEVELOPMENT = true
@@ -13,7 +13,7 @@ SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
  
 [production]
 DEBUG = false 
-SQLALCHEMY_DATABASE_URI="mysql://root:p@ssw0rd123@0.0.0.0:3306/secretsanta_db"
+SQLALCHEMY_DATABASE_URI="mysql://user:password@0.0.0.0:3306/database"
 
 [testing]
 DEBUG = true 
