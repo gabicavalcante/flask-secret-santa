@@ -32,4 +32,3 @@ def test_get_response_create_draw():
     assert get_response("Lion, 44444444", "981341213", draw) == ["Lion was add!"]
 
     assert len(draw.run()) == 2
-

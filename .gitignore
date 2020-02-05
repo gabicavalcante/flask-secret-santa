@@ -7,6 +7,7 @@
 
 ## SQLite
 *.db
+*.sqlite
 
 ### Flask ###
 instance/*
