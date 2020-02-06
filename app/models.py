@@ -42,6 +42,7 @@ class Draw(db.Model):
     def create(responsible_number):
         draw = Draw(responsible_number=responsible_number, in_process=True)
         db.session.add(draw)
+        return draw
 
     def run(self):
         participants = copy.copy(self.participants)
