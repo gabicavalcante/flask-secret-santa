@@ -3,7 +3,8 @@ DEBUG = false
 CSRF_ENABLED = true
 SQLALCHEMY_TRACK_MODIFICATIONS = false
 TITLE = "Flask Secret Santa"  
- 
+TWILIO_WHATSAPP = "+15005550006"
+
 [development]
 DEVELOPMENT = true
 DEBUG = true
@@ -13,7 +14,8 @@ SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
  
 [production]
 DEBUG = false 
-SQLALCHEMY_DATABASE_URI="mysql://user:password@0.0.0.0:3306/database"
+DB_NAME = "production.db"
+SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"# "mysql://user:password@0.0.0.0:3306/database"
 
 [testing]
 DEBUG = true 

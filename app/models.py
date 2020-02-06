@@ -38,6 +38,9 @@ class Draw(db.Model):
         self.responsible_number = responsible_number
         self.participants = participants
 
+    def __str__(self):
+        return f"Draw {self.id}"
+
     @staticmethod
     def create(responsible_number):
         draw = Draw(responsible_number=responsible_number, in_process=True)
@@ -64,6 +67,9 @@ class Participant(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(120), unique=False, nullable=False)
     number = db.Column(db.String(120), unique=True, nullable=False)
+
+    def get_draws(self):
+        return [str(d) for d in self.draws]
 
     @staticmethod
     def find_or_create(name, number):
