@@ -1,13 +1,13 @@
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
-from app.models import db, Draw, Participant, DrawSubscription
+from app.models import db, Draw, Participant
 from dynaconf import settings
 
 
 def _send_message(message, number):
     """
-    send a whatsapp message   
+    send a whatsapp message
     """
     client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
@@ -31,30 +31,23 @@ def _bot_replay(response):
 
 def process_message(message, number):
     """
-    process the user message 
+    process the user message
     """
     response = []
 
     # help command
     if message == "help":
-        response.append(
-            "'get draws' - get information about all draws that you make parte."
-        )
-        response.append("'create draw' - start create a new draw")
-        response.append("'run draw' - run the draw")
+        response.append("*create draw* - start create a new draw")
+        response.append("*run draw* - run the draw")
         return _bot_replay(response)
 
-    if message == "get draws":
-        participant = Participant.query.filter_by(number=number).first()
-        if not participant:
-            return _bot_replay(["You don't have draws"])
-        return _bot_replay(participant.get_draws())
-
     if message == "create draw":
-        Draw.create(responsible_number=number)
+        draw = Draw.create(responsible_number=number)
+        db.session.add(draw)
+        db.session.commit()
 
         response.append("Hey! You created a new draw!")
-        response.append(f"The draw code is {draw.id}")
+        response.append(f"*The draw code is {draw.id}*")
         response.append("Give to your friends this code.")
         response.append("When they finish, texting 'run draw {draw.id}'.")
 
@@ -68,15 +61,17 @@ def process_message(message, number):
         if not draw:
             response.append(f"There is not draw with code {code}!")
             response.append(
-                f"Please, send a message in the form '{Name} want to join the draw {code}'"
+                f"Please, send a message in the form '*NAME* want to join the draw *CODE*'"
             )
             response.append("For example, 'Bill want to join the draw 9'")
             return _bot_replay(response)
 
         participant = Participant.find_or_create(participant_name, number)
-        draw.subscribe(participant)
+        draw.participants.append(participant)
+        db.session.add(participant)
+        db.session.commit()
 
-        response.append(f"{participant_name} was add!")
+        response.append(f"*{participant_name}* was add!")
 
         _send_message(response, draw.responsible_number)
         return _bot_replay(response)
@@ -92,12 +87,10 @@ def process_message(message, number):
 
         result = draw.run()
         for pair in result:
-            p1, p2 = pair 
+            p1, p2 = pair
             _send_message(
-                [
-                    f"Hi {p1.participant.name}, you got {p2.participant.name} ({p2.participant.number})!"
-                ],
-                p1.participant.number,
+                [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], p1.number,
             )
 
         return _bot_replay(["draw is done!"])
+    return _bot_replay(["Sorry, I can't help you :("])
