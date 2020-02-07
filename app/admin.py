@@ -37,5 +37,5 @@ class DrawModelView(ModelView):
             flash(gettext("Failed to approve users. %(error)s", error=str(ex)), "error")
 
 
-admin.add_view(DrawModelView(Draw, db.session))
-admin.add_view(ModelView(Participant, db.session))
+# admin.add_view(DrawModelView(Draw, db.session))
+# admin.add_view(ModelView(Participant, db.session))

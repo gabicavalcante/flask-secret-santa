@@ -11,7 +11,7 @@ def _send_message(message, number):
     """
     client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
-    body = "\n".join(str(message))
+    body = "\n".join(message)
     message = client.messages.create(
         body=body,
         from_=f"whatsapp:{settings.TWILIO_WHATSAPP}",
@@ -65,6 +65,7 @@ def process_message(message, number):
         participant_name = message.split("want to join the draw")[0].strip()
         code = message.split("want to join the draw")[-1].strip()
         draw = Draw.query.filter_by(id=code).first()
+        
         if not draw:
             response.append(f"There is not draw with code {code}!")
             response.append(
@@ -73,10 +74,9 @@ def process_message(message, number):
             response.append("For example, 'Bill want to join the draw 9'")
             return _bot_replay(response)
 
+        
         participant = Participant.find_or_create(participant_name, number)
-        draw.participants.append(participant)
-
-        db.session.add(participant)
+        draw.subscribe(participant)
         db.session.commit()
 
         response.append(f"{participant_name} was add!")
@@ -95,6 +95,9 @@ def process_message(message, number):
 
         result = draw.run()
         for pair in result:
-            _send_message([f"Hi {pair[0].name}, you got {pair[1].name}!"], pair.number)
+            p1, p2 = pair
+            _send_message(
+                [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], p1.number
+            )
 
         return _bot_replay(["draw is done!"])

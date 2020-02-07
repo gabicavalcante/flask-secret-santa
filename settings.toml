@@ -3,7 +3,6 @@ DEBUG = false
 CSRF_ENABLED = true
 SQLALCHEMY_TRACK_MODIFICATIONS = false
 TITLE = "Flask Secret Santa"  
-TWILIO_WHATSAPP = "+15005550006"
 
 [development]
 DEVELOPMENT = true
