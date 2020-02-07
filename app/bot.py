@@ -85,7 +85,12 @@ def process_message(message, number):
             response.append("For example, 'run draw 9'")
             return _bot_replay(response)
 
+        if not draw.in_process:
+            response.append(f"Draw {draw.id} is not open.")
+            return _bot_replay(response)
+
         result = draw.run()
+        db.session.commit()
         for pair in result:
             p1, p2 = pair
             _send_message(

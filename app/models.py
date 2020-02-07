@@ -53,6 +53,8 @@ class Draw(db.Model):
         partners = deque(participants)
         partners.rotate()
         result = list(zip(participants, partners))
+        
+        self.in_process = False
         return result
 
 

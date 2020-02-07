@@ -48,8 +48,14 @@ def test_response_create_draw(mock_function):
     assert len(draw.participants) == 2
 
     result = draw.run()
+    assert not draw.in_process
     assert (draw.participants[0], draw.participants[1]) in result
     assert (draw.participants[1], draw.participants[0]) in result
+
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Draw {0} is not open.</Body></Message></Response>"""
+    assert process_message("run draw 1", "+5571981265132") == xml_response.format(
+        draw.id
+    )
 
 
 def test_run_draw(app):
