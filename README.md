@@ -10,7 +10,6 @@ This is a simple python bot to to draw names and send a text message to the part
 ### libs
 
 - config: [`dynaconf`](https://dynaconf.readthedocs.io/en/latest/)
-- admin: [`flask_admin`](https://flask-admin.readthedocs.io/en/latest/)
 - log: [`logging`](https://flask.palletsprojects.com/en/1.0.x/logging/)
 - db: [`flask_sqlalchemy`](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) and [`flask_migrate`](https://flask-migrate.readthedocs.io/en/latest/)
 

@@ -6,9 +6,15 @@ from collections import deque
 db = SQLAlchemy()
 
 
+def _update_db(obj):
+    db.session.add(obj)
+    db.session.commit()
+    return obj
+
+
 class DrawSubscription(db.Model):
     __tablename__ = "draw_subscription"
-    draw_id = db.Column(db.Integer, db.ForeignKey("draw.id"))
+    draw_id = db.Column(db.Integer, db.ForeignKey("draw.id"), primary_key=True)
     participant_id = db.Column(
         db.Integer, db.ForeignKey("participant.id"), primary_key=True,
     )
@@ -21,6 +27,13 @@ class DrawSubscription(db.Model):
     participant = db.relationship(
         "Participant", back_populates="draws", foreign_keys=[participant_id]
     )
+
+    def __repr__(self):
+        return f"DrawSubscription: draw={self.draw}, participant={self.participant}, pair={self.pair}"
+
+    def update_pair(pair):
+        self.pair = pair
+        _update_db(self)
 
 
 class Draw(db.Model):
@@ -54,21 +67,28 @@ class Draw(db.Model):
     @staticmethod
     def create(responsible_number):
         draw = Draw(in_process=True, responsible_number=responsible_number)
-        db.session.add(draw)
+        _update_db(self)
+
         return draw
 
     def subscribe(self, participant):
-        self.participants.append(DrawSubscription(participant=participant))
+        subscription = DrawSubscription(participant=participant)
+        self.participants.append(subscription)
+        _update_db(self)
 
     def run(self):
         participants = copy.copy(self.participants)
-        random.shuffle(participants)
-        
+        random.shuffle(self.participants)
+
         partners = deque(participants)
         partners.rotate()
         result = list(zip(participants, partners))
-        for (subs1, subs2) in result:
-            subs1.pair = subs2.participant
+
+        # TODO: fix it
+        #for (subs1, subs2) in result:
+        #    subs1.pair = subs2.participant
+        
+        db.session.commit()
         return result
 
 
@@ -98,5 +118,4 @@ class Participant(db.Model):
         participant = Participant.query.filter_by(number=number).first()
         if not participant:
             participant = Participant(name=name, number=number)
-            db.session.add(participant)
         return participant

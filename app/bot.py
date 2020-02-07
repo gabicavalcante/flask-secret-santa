@@ -1,7 +1,7 @@
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
-from app.models import db, Draw, Participant
+from app.models import db, Draw, Participant, DrawSubscription
 from dynaconf import settings
 
 
@@ -51,8 +51,7 @@ def process_message(message, number):
         return _bot_replay(participant.get_draws())
 
     if message == "create draw":
-        draw = Draw.create(responsible_number=number)
-        db.session.commit()
+        Draw.create(responsible_number=number)
 
         response.append("Hey! You created a new draw!")
         response.append(f"The draw code is {draw.id}")
@@ -65,7 +64,7 @@ def process_message(message, number):
         participant_name = message.split("want to join the draw")[0].strip()
         code = message.split("want to join the draw")[-1].strip()
         draw = Draw.query.filter_by(id=code).first()
-        
+
         if not draw:
             response.append(f"There is not draw with code {code}!")
             response.append(
@@ -74,10 +73,8 @@ def process_message(message, number):
             response.append("For example, 'Bill want to join the draw 9'")
             return _bot_replay(response)
 
-        
         participant = Participant.find_or_create(participant_name, number)
         draw.subscribe(participant)
-        db.session.commit()
 
         response.append(f"{participant_name} was add!")
 
@@ -95,9 +92,12 @@ def process_message(message, number):
 
         result = draw.run()
         for pair in result:
-            p1, p2 = pair
+            p1, p2 = pair 
             _send_message(
-                [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], p1.number
+                [
+                    f"Hi {p1.participant.name}, you got {p2.participant.name} ({p2.participant.number})!"
+                ],
+                p1.participant.number,
             )
 
         return _bot_replay(["draw is done!"])
