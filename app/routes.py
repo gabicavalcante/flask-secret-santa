@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app.bot import get_response, send_message
+from app.bot import process_message
 
 bot = Blueprint("bot", __name__)
 
@@ -12,6 +12,5 @@ def index():
     if remote_number.startswith("whatsapp:"):
         remote_number = remote_number.split(":")[1]
 
-    response = get_response(incoming_msg)
-    send_message(response)
-    return response
+    bot_response = process_message(incoming_msg, remote_number)
+    return bot_response

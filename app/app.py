@@ -12,10 +12,9 @@ def create_app(**config):
 
     db.init_app(app)
     Migrate(app, db)
-    from app.admin import admin
 
-    admin.init_app(app)
     from app.routes import bot
+
     app.register_blueprint(bot)
 
     return app

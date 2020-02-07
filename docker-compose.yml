@@ -25,7 +25,7 @@ services:
       - .:/secretsanta
     restart: always
     environment:
-      FLASK_ENV: "production"
+      FLASK_ENV: "development"
     command: >
       bash -c "cd /secretsanta && 
       pip install -r requirements.txt && 
