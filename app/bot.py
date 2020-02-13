@@ -7,7 +7,14 @@ from dynaconf import settings
 
 def _send_message(message, number):
     """
-    send a whatsapp message
+    Send a whatsapp message using the twilio Cliente.
+    Configure the twilio account SID and TOKEN in the settings file.
+
+    :type message: str
+    :param message: text to send
+
+    :type number: str
+    :param number: number to send the message
     """
     client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
@@ -21,7 +28,13 @@ def _send_message(message, number):
 
 def _bot_replay(response):
     """
-    replay the whatpsapp message
+    Replay a whatsapp message using the MessagingResponse.
+    Use this method if you what a direct replay given a client message.
+
+    :type number: str
+    :param response: text to send as response
+    
+    :returns: XML string with the text to response
     """
     resp = MessagingResponse()
     msg = resp.message()
@@ -31,7 +44,13 @@ def _bot_replay(response):
 
 def process_message(message, number):
     """
-    process the user message
+    Process the user message and decide witch action hould be made.
+
+    :type message: str
+    :param message: user message
+
+    :type number: str
+    :param number: user number
     """
     response = []
 

@@ -14,7 +14,7 @@ SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
 [production]
 DEBUG = false 
 DB_NAME = "production.db"
-SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"# "mysql://user:password@0.0.0.0:3306/database"
+SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
 
 [testing]
 DEBUG = true 

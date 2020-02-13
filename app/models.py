@@ -16,8 +16,6 @@ draw_subscription = db.Table(
 
 
 class Draw(db.Model):
-    """..."""
-
     __tablename__ = "draw"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -51,16 +49,14 @@ class Draw(db.Model):
         random.shuffle(self.participants)
 
         partners = deque(participants)
-        partners.rotate()
+        partners.rotate(1)
         result = list(zip(participants, partners))
-        
+
         self.in_process = False
         return result
 
 
 class Participant(db.Model):
-    """Participant"""
-
     __tablename__ = "participant"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

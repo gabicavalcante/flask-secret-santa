@@ -8,7 +8,12 @@ import mock
 
 def _send_message_mock(message, number):
     """
-    mock the send message
+    Mock function to replace the _send_message.
+    In this function we use a different twilio number in
+    from_ field to make requests with test credentials.
+     
+    :param message: message to send
+    :param message: twilio test phone number
     """
     client = Client(
         current_app.config["TWILIO_ACCOUNT_SID"],
@@ -28,6 +33,7 @@ def test_process_message_help(app):
 
 @mock.patch("app.bot._send_message", side_effect=_send_message_mock)
 def test_response_create_draw(mock_function):
+    # create a new draw
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new draw!\n*The draw code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run draw {draw.id}\'.</Body></Message></Response>"""
     assert process_message("create draw", settings.TWILIO_WHATSAPP) == xml_response
 
@@ -35,8 +41,8 @@ def test_response_create_draw(mock_function):
     assert draw
     assert draw.in_process
 
+    # add participants
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*{0}* was add!</Body></Message></Response>"""
-
     assert process_message(
         "Bill want to join the draw 1", "+5571981265131"
     ) == xml_response.format("Bill")
@@ -47,6 +53,7 @@ def test_response_create_draw(mock_function):
 
     assert len(draw.participants) == 2
 
+    # run the draw
     result = draw.run()
     assert not draw.in_process
     assert (draw.participants[0], draw.participants[1]) in result

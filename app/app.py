@@ -8,6 +8,7 @@ def create_app(**config):
 
     # initialize the FlaskDynaconf extension in our app
     FlaskDynaconf(app, **config)
+
     from app.models import db
 
     db.init_app(app)
