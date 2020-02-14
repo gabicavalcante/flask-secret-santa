@@ -42,7 +42,7 @@ def test_response_create_draw(mock_function):
     assert draw.in_process
 
     # add participants
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*{0}* was add!</Body></Message></Response>"""
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*{0}* was added!</Body></Message></Response>"""
     assert process_message(
         "Bill want to join the draw 1", "+5571981265131"
     ) == xml_response.format("Bill")

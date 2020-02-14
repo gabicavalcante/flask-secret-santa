@@ -90,7 +90,7 @@ def process_message(message, number):
         db.session.add(participant)
         db.session.commit()
 
-        response.append(f"*{participant_name}* was add!")
+        response.append(f"*{participant_name}* was added!")
 
         _send_message(response, draw.responsible_number)
         return _bot_replay(response)
