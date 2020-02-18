@@ -1,6 +1,6 @@
 # flask secret santa
 
-This is a simple python bot to to draw names and send a text message to the participants.
+This is a simple python bot to to secretsanta names and send a text message to the participants.
 
 ### python code formartter
 
