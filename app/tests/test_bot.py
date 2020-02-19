@@ -27,17 +27,15 @@ def _send_message_mock(message, number):
 
 
 def test_process_message_help(app):
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*create secretsanta* - start create a new secretsanta\n*run secretsanta* - run the secretsanta</Body></Message></Response>"""
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>create: create a new secret santa\nrun {code}: run the secret santa\ncancel {code}: cancel the secret santa\n{name} wants to join {code}: to join the secret santa</Body></Message></Response>"""
     assert process_message("help", settings.TWILIO_WHATSAPP) == xml_response
 
 
 @mock.patch("app.bot._send_message", side_effect=_send_message_mock)
 def test_response_create_draw(mock_function):
     # create a new secretsanta
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new secretsanta!\n*The secretsanta code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run secretsanta {secretsanta.id}\'.</Body></Message></Response>"""
-    assert (
-        process_message("create secretsanta", settings.TWILIO_WHATSAPP) == xml_response
-    )
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new Secret Santa!\n*The Secret Santa code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run 1\'.</Body></Message></Response>"""
+    assert process_message("create", settings.TWILIO_WHATSAPP) == xml_response
 
     secretsanta = SecretSanta.query.filter_by(
         creator_number=settings.TWILIO_WHATSAPP
@@ -47,13 +45,13 @@ def test_response_create_draw(mock_function):
 
     # add participants
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*{0}* was added!</Body></Message></Response>"""
-    assert process_message(
-        "Bill want to join the secretsanta 1", "+5571981265131"
-    ) == xml_response.format("Bill")
+    assert process_message("add Bill to 1", "+5571981265131") == xml_response.format(
+        "Bill"
+    )
 
-    assert process_message(
-        "Ana want to join the secretsanta 1", "+5571981265132"
-    ) == xml_response.format("Ana")
+    assert process_message("add Ana to 1", "+5571981265132") == xml_response.format(
+        "Ana"
+    )
 
     assert len(secretsanta.participants) == 2
 
@@ -63,7 +61,7 @@ def test_response_create_draw(mock_function):
     assert (secretsanta.participants[0], secretsanta.participants[1]) in result
     assert (secretsanta.participants[1], secretsanta.participants[0]) in result
 
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>SecretSanta {0} is not open.</Body></Message></Response>"""
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Secret Santa {0} is not open.</Body></Message></Response>"""
     assert process_message(
         "run secretsanta 1", "+5571981265132"
     ) == xml_response.format(secretsanta.id)

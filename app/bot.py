@@ -56,8 +56,10 @@ def process_message(message, number):
 
     # help command
     if message == "help":
-        response.append("*create secretsanta* - start create a new secretsanta")
-        response.append("*run secretsanta* - run the secretsanta")
+        response.append("create: create a new secret santa")
+        response.append("run {code}: run the secret santa")
+        response.append("cancel {code}: cancel the secret santa")
+        response.append("{name} wants to join {code}: to join the secret santa")
         return _bot_replay(response)
 
     if message == "create":
@@ -73,8 +75,10 @@ def process_message(message, number):
         return _bot_replay(response)
 
     if "add" in message:
-        participant_name = message.split("to")[0].strip()
-        code = message.split("to")[-1].strip()
+        words = message.split()
+        participant_name = " ".join(words[1:-2])
+        code = words[-1].strip()
+
         secretsanta = SecretSanta.query.filter_by(id=code).first()
 
         if not secretsanta:
@@ -96,18 +100,16 @@ def process_message(message, number):
         return _bot_replay(response)
 
     if "run" in message:
-        code = message.split("run secretsanta")[-1]
+        code = message.split()[-1]
         secretsanta = SecretSanta.query.filter_by(id=code).first()
         if not secretsanta:
-            response.append(f"There is not secretsanta with code {code}!")
-            response.append(
-                f"Please, send a message in the form 'run secretsanta {code}'"
-            )
-            response.append("For example, 'run secretsanta 9'")
+            response.append(f"There is not Secret Santa with code {code}!")
+            response.append(f"Please, send a message in the form 'run {code}'")
+            response.append("For example, 'run 9'")
             return _bot_replay(response)
 
         if not secretsanta.in_process:
-            response.append(f"SecretSanta {secretsanta.id} is not open.")
+            response.append(f"Secret Santa {secretsanta.id} is not open.")
             return _bot_replay(response)
 
         result = secretsanta.run()

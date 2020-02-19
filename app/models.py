@@ -6,15 +6,6 @@ from collections import deque
 db = SQLAlchemy()
 
 
-draw_subscription = db.Table(
-    "draw_subscription",
-    db.Column("draw_id", db.Integer, db.ForeignKey("secretsanta.id"), primary_key=True),
-    db.Column(
-        "participant_id", db.Integer, db.ForeignKey("participant.id"), primary_key=True
-    ),
-)
-
-
 class SecretSanta(db.Model):
     __tablename__ = "secretsanta"
 
@@ -22,9 +13,7 @@ class SecretSanta(db.Model):
     in_process = db.Column(db.Boolean, nullable=True, default=False)
     creator_number = db.Column(db.String(120), unique=False, nullable=False)
 
-    participants = db.relationship(
-        "Participant", secondary=draw_subscription, backref="draws",
-    )
+    participants = db.relationship("Participant", backref="draws",)
 
     created_at = db.Column(
         db.DateTime, default=db.func.current_timestamp(), nullable=False
@@ -61,7 +50,9 @@ class Participant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(120), unique=False, nullable=False)
-    number = db.Column(db.String(120), unique=True, nullable=False)
+    number = db.Column(db.String(120), nullable=False)
+
+    secretsanta_id = db.Column(db.Integer, db.ForeignKey("secretsanta.id"))
 
     def __repr__(self):
         return f"Participant: name={self.name}, number={self.number}"
