@@ -6,43 +6,32 @@ from collections import deque
 db = SQLAlchemy()
 
 
-draw_subscription = db.Table(
-    "draw_subscription",
-    db.Column("draw_id", db.Integer, db.ForeignKey("draw.id"), primary_key=True),
-    db.Column(
-        "participant_id", db.Integer, db.ForeignKey("participant.id"), primary_key=True
-    ),
-)
-
-
-class Draw(db.Model):
-    __tablename__ = "draw"
+class SecretSanta(db.Model):
+    __tablename__ = "secretsanta"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     in_process = db.Column(db.Boolean, nullable=True, default=False)
-    responsible_number = db.Column(db.String(120), unique=False, nullable=False)
+    creator_number = db.Column(db.String(120), unique=False, nullable=False)
 
-    participants = db.relationship(
-        "Participant", secondary=draw_subscription, backref="draws",
-    )
+    participants = db.relationship("Participant", backref="draws",)
 
     created_at = db.Column(
         db.DateTime, default=db.func.current_timestamp(), nullable=False
     )
 
-    def __init__(self, in_process, responsible_number, participants=[], result={}):
+    def __init__(self, in_process, creator_number, participants=[], result={}):
         self.in_process = in_process
-        self.responsible_number = responsible_number
+        self.creator_number = creator_number
         self.participants = participants
         self.result = {}
 
     def __repr__(self):
-        return f"Draw: code={self.id}, responsible={self.responsible_number} created={self.created_at}"
+        return f"SecretSanta: code={self.id}, responsible={self.creator_number} created={self.created_at}"
 
     @staticmethod
-    def create(responsible_number):
-        draw = Draw(in_process=True, responsible_number=responsible_number)
-        return draw
+    def create(creator_number):
+        ss = SecretSanta(in_process=True, creator_number=creator_number)
+        return ss
 
     def run(self):
         participants = copy.copy(self.participants)
@@ -61,7 +50,9 @@ class Participant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(120), unique=False, nullable=False)
-    number = db.Column(db.String(120), unique=True, nullable=False)
+    number = db.Column(db.String(120), nullable=False)
+
+    secretsanta_id = db.Column(db.Integer, db.ForeignKey("secretsanta.id"))
 
     def __repr__(self):
         return f"Participant: name={self.name}, number={self.number}"

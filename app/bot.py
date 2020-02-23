@@ -1,7 +1,7 @@
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
-from app.models import db, Draw, Participant
+from app.models import db, SecretSanta, Participant
 from dynaconf import settings
 
 
@@ -56,59 +56,63 @@ def process_message(message, number):
 
     # help command
     if message == "help":
-        response.append("*create draw* - start create a new draw")
-        response.append("*run draw* - run the draw")
+        response.append("create: create a new secret santa")
+        response.append("run {code}: run the secret santa")
+        response.append("cancel {code}: cancel the secret santa")
+        response.append("add {name} to {code}: to join the secret santa")
         return _bot_replay(response)
 
-    if message == "create draw":
-        draw = Draw.create(responsible_number=number)
-        db.session.add(draw)
+    if message == "create":
+        ss = SecretSanta.create(creator_number=number)
+        db.session.add(ss)
         db.session.commit()
 
-        response.append("Hey! You created a new draw!")
-        response.append(f"*The draw code is {draw.id}*")
+        response.append("Hey! You created a new Secret Santa!")
+        response.append(f"*The Secret Santa code is {ss.id}*")
         response.append("Give to your friends this code.")
-        response.append("When they finish, texting 'run draw {draw.id}'.")
+        response.append(f"When they finish, texting 'run {ss.id}'.")
 
         return _bot_replay(response)
 
-    if "want to join the draw" in message:
-        participant_name = message.split("want to join the draw")[0].strip()
-        code = message.split("want to join the draw")[-1].strip()
-        draw = Draw.query.filter_by(id=code).first()
+    if "add" in message:
+        words = message.split()
+        participant_name = " ".join(words[1:-2])
+        code = words[-1].strip()
 
-        if not draw:
-            response.append(f"There is not draw with code {code}!")
+        ss = SecretSanta.query.filter_by(id=code).first()
+
+        if not ss:
+            response.append(f"There is not Secret Santa with code {code}!")
             response.append(
-                f"Please, send a message in the form '*NAME* want to join the draw *CODE*'"
+                f"Please, send a message in the form 'add *NAME* to *CODE*'"
             )
-            response.append("For example, 'Bill want to join the draw 9'")
+            response.append("For example, 'add Bill to 9'")
             return _bot_replay(response)
 
         participant = Participant.find_or_create(participant_name, number)
-        draw.participants.append(participant)
+        ss.participants.append(participant)
         db.session.add(participant)
         db.session.commit()
 
         response.append(f"*{participant_name}* was added!")
 
-        _send_message(response, draw.responsible_number)
+        _send_message(response, ss.creator_number)
         return _bot_replay(response)
 
-    if "run draw" in message:
-        code = message.split("run draw")[-1]
-        draw = Draw.query.filter_by(id=code).first()
-        if not draw:
-            response.append(f"There is not draw with code {code}!")
-            response.append(f"Please, send a message in the form 'run draw {code}'")
-            response.append("For example, 'run draw 9'")
+    if "run" in message:
+        code = message.split()[-1]
+        ss = SecretSanta.query.filter_by(id=code).first()
+        if not ss:
+            response.append(f"There is not Secret Santa with code {code}!")
+            response.append(f"Please, send a message in the form 'run {code}'")
+            response.append("For example, 'run 9'")
             return _bot_replay(response)
 
-        if not draw.in_process:
-            response.append(f"Draw {draw.id} is not open.")
+        if not ss.in_process:
+            response.append(f"Secret Santa {ss.id} is not open.")
             return _bot_replay(response)
 
-        result = draw.run()
+        result = ss.run()
         db.session.commit()
         for pair in result:
             p1, p2 = pair
@@ -116,5 +120,5 @@ def process_message(message, number):
                 [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], p1.number,
             )
 
-        return _bot_replay(["draw is done!"])
+        return _bot_replay(["Secret Santa is done!"])
     return _bot_replay(["Sorry, I can't help you :("])

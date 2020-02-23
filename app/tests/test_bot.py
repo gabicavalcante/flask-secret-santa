@@ -1,7 +1,7 @@
 from app.bot import process_message
 from flask import current_app
 from twilio.rest import Client
-from app.models import Draw, Participant
+from app.models import SecretSanta, Participant
 from dynaconf import settings
 import mock
 
@@ -27,41 +27,43 @@ def _send_message_mock(message, number):
 
 
 def test_process_message_help(app):
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*create draw* - start create a new draw\n*run draw* - run the draw</Body></Message></Response>"""
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>create: create a new secret santa\nrun {code}: run the secret santa\ncancel {code}: cancel the secret santa\nadd {name} to {code}: to join the secret santa</Body></Message></Response>"""
     assert process_message("help", settings.TWILIO_WHATSAPP) == xml_response
 
 
 @mock.patch("app.bot._send_message", side_effect=_send_message_mock)
-def test_response_create_draw(mock_function):
-    # create a new draw
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new draw!\n*The draw code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run draw {draw.id}\'.</Body></Message></Response>"""
-    assert process_message("create draw", settings.TWILIO_WHATSAPP) == xml_response
+def test_response_create_draw(mock_function, app):
+    # create a new secretsanta
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new Secret Santa!\n*The Secret Santa code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run 1\'.</Body></Message></Response>"""
+    assert process_message("create", settings.TWILIO_WHATSAPP) == xml_response
 
-    draw = Draw.query.filter_by(responsible_number=settings.TWILIO_WHATSAPP).first()
-    assert draw
-    assert draw.in_process
+    secretsanta = SecretSanta.query.filter_by(
+        creator_number=settings.TWILIO_WHATSAPP
+    ).first()
+    assert secretsanta
+    assert secretsanta.in_process
 
     # add participants
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>*{0}* was added!</Body></Message></Response>"""
-    assert process_message(
-        "Bill want to join the draw 1", "+5571981265131"
-    ) == xml_response.format("Bill")
+    assert process_message("add Bill to 1", "+5571981265131") == xml_response.format(
+        "Bill"
+    )
 
-    assert process_message(
-        "Ana want to join the draw 1", "+5571981265132"
-    ) == xml_response.format("Ana")
+    assert process_message("add Ana to 1", "+5571981265132") == xml_response.format(
+        "Ana"
+    )
 
-    assert len(draw.participants) == 2
+    assert len(secretsanta.participants) == 2
 
-    # run the draw
-    result = draw.run()
-    assert not draw.in_process
-    assert (draw.participants[0], draw.participants[1]) in result
-    assert (draw.participants[1], draw.participants[0]) in result
+    # run the secretsanta
+    result = secretsanta.run()
+    assert not secretsanta.in_process
+    assert (secretsanta.participants[0], secretsanta.participants[1]) in result
+    assert (secretsanta.participants[1], secretsanta.participants[0]) in result
 
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Draw {0} is not open.</Body></Message></Response>"""
-    assert process_message("run draw 1", "+5571981265132") == xml_response.format(
-        draw.id
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Secret Santa {0} is not open.</Body></Message></Response>"""
+    assert process_message("run 1", "+5571981265132") == xml_response.format(
+        secretsanta.id
     )
 
 
@@ -72,12 +74,12 @@ def test_run_draw(app):
     participant4 = Participant(name="Katy", number="5571981265144")
     participant5 = Participant(name="Phil", number="5571981265155")
 
-    draw = Draw(responsible_number=settings.TWILIO_WHATSAPP, in_process=True)
-    draw.participants.extend(
+    secretsanta = SecretSanta(creator_number=settings.TWILIO_WHATSAPP, in_process=True)
+    secretsanta.participants.extend(
         [participant1, participant2, participant3, participant4, participant5]
     )
 
-    result = draw.run()
+    result = secretsanta.run()
     assert len(result) == 5
     participants1 = [
         participant1,

@@ -4,6 +4,9 @@ from dynaconf import FlaskDynaconf
 
 
 def create_app(**config):
+    # import ipdb
+
+    # ipdb.set_trace()
     app = Flask(__name__)
 
     # initialize the FlaskDynaconf extension in our app
