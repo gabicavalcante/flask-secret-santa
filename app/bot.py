@@ -59,7 +59,7 @@ def process_message(message, number):
         response.append("create: create a new secret santa")
         response.append("run {code}: run the secret santa")
         response.append("cancel {code}: cancel the secret santa")
-        response.append("{name} wants to join {code}: to join the secret santa")
+        response.append("add {name} to {code}: to join the secret santa")
         return _bot_replay(response)
 
     if message == "create":

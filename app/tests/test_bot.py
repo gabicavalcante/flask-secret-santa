@@ -27,7 +27,7 @@ def _send_message_mock(message, number):
 
 
 def test_process_message_help(app):
-    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>create: create a new secret santa\nrun {code}: run the secret santa\ncancel {code}: cancel the secret santa\n{name} wants to join {code}: to join the secret santa</Body></Message></Response>"""
+    xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>create: create a new secret santa\nrun {code}: run the secret santa\ncancel {code}: cancel the secret santa\nadd {name} to {code}: to join the secret santa</Body></Message></Response>"""
     assert process_message("help", settings.TWILIO_WHATSAPP) == xml_response
 
 

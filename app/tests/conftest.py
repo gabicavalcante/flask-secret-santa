@@ -9,17 +9,13 @@ def app():
     return app
 
 
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
-
-@pytest.fixture
+@pytest.fixture(scope="function", autouse=True)
 def db(app):
+
     from app.models import db
 
     with app.app_context():
         db.create_all()
         yield db
+        db.session.close()
         db.drop_all()
-        db.session.commit()
