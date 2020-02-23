@@ -30,8 +30,8 @@ class SecretSanta(db.Model):
 
     @staticmethod
     def create(creator_number):
-        secretsanta = SecretSanta(in_process=True, creator_number=creator_number)
-        return secretsanta
+        ss = SecretSanta(in_process=True, creator_number=creator_number)
+        return ss
 
     def run(self):
         participants = copy.copy(self.participants)

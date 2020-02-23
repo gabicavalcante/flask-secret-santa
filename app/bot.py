@@ -79,9 +79,9 @@ def process_message(message, number):
         participant_name = " ".join(words[1:-2])
         code = words[-1].strip()
 
-        secretsanta = SecretSanta.query.filter_by(id=code).first()
+        ss = SecretSanta.query.filter_by(id=code).first()
 
-        if not secretsanta:
+        if not ss:
             response.append(f"There is not Secret Santa with code {code}!")
             response.append(
                 f"Please, send a message in the form 'add *NAME* to *CODE*'"
@@ -90,29 +90,29 @@ def process_message(message, number):
             return _bot_replay(response)
 
         participant = Participant.find_or_create(participant_name, number)
-        secretsanta.participants.append(participant)
+        ss.participants.append(participant)
         db.session.add(participant)
         db.session.commit()
 
         response.append(f"*{participant_name}* was added!")
 
-        _send_message(response, secretsanta.creator_number)
+        _send_message(response, ss.creator_number)
         return _bot_replay(response)
 
     if "run" in message:
         code = message.split()[-1]
-        secretsanta = SecretSanta.query.filter_by(id=code).first()
-        if not secretsanta:
+        ss = SecretSanta.query.filter_by(id=code).first()
+        if not ss:
             response.append(f"There is not Secret Santa with code {code}!")
             response.append(f"Please, send a message in the form 'run {code}'")
             response.append("For example, 'run 9'")
             return _bot_replay(response)
 
-        if not secretsanta.in_process:
-            response.append(f"Secret Santa {secretsanta.id} is not open.")
+        if not ss.in_process:
+            response.append(f"Secret Santa {ss.id} is not open.")
             return _bot_replay(response)
 
-        result = secretsanta.run()
+        result = ss.run()
         db.session.commit()
         for pair in result:
             p1, p2 = pair
@@ -120,5 +120,5 @@ def process_message(message, number):
                 [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], p1.number,
             )
 
-        return _bot_replay(["secretsanta is done!"])
+        return _bot_replay(["Secret Santa is done!"])
     return _bot_replay(["Sorry, I can't help you :("])

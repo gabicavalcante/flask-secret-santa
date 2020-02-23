@@ -32,7 +32,7 @@ def test_process_message_help(app):
 
 
 @mock.patch("app.bot._send_message", side_effect=_send_message_mock)
-def test_response_create_draw(mock_function):
+def test_response_create_draw(mock_function, app):
     # create a new secretsanta
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new Secret Santa!\n*The Secret Santa code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run 1\'.</Body></Message></Response>"""
     assert process_message("create", settings.TWILIO_WHATSAPP) == xml_response
@@ -62,9 +62,9 @@ def test_response_create_draw(mock_function):
     assert (secretsanta.participants[1], secretsanta.participants[0]) in result
 
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Secret Santa {0} is not open.</Body></Message></Response>"""
-    assert process_message(
-        "run secretsanta 1", "+5571981265132"
-    ) == xml_response.format(secretsanta.id)
+    assert process_message("run 1", "+5571981265132") == xml_response.format(
+        secretsanta.id
+    )
 
 
 def test_run_draw(app):
