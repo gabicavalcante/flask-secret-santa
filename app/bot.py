@@ -89,7 +89,7 @@ def process_message(message, number):
             response.append("For example, 'add Bill to 9'")
             return _bot_replay(response)
 
-        participant = Participant.find_or_create(participant_name, number)
+        participant = Participant(name=participant_name, number=number)
         ss.participants.append(participant)
         db.session.add(participant)
         db.session.commit()

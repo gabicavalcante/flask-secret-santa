@@ -56,10 +56,3 @@ class Participant(db.Model):
 
     def __repr__(self):
         return f"Participant: name={self.name}, number={self.number}"
-
-    @staticmethod
-    def find_or_create(name, number):
-        participant = Participant.query.filter_by(number=number).first()
-        if not participant:
-            participant = Participant(name=name, number=number)
-        return participant
