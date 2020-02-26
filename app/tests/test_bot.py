@@ -1,44 +1,20 @@
 from app.bot import process_message
-from flask import current_app
-from twilio.rest import Client
 from app.models import SecretSanta, Participant
 from dynaconf import settings
-import mock
-
-
-def _send_message_mock(message, number):
-    """
-    Mock function to replace the _send_message.
-    In this function we use a different twilio number in
-    from_ field to make requests with test credentials.
-     
-    :param message: message to send
-    :param message: twilio test phone number
-    """
-    client = Client(
-        current_app.config["TWILIO_ACCOUNT_SID"],
-        current_app.config["TWILIO_AUTH_TOKEN"],
-    )
-
-    body = "\n".join(message)
-    message = client.messages.create(
-        body=body, from_=current_app.config["TWILIO_WHATSAPP"], to=number
-    )
 
 
 def test_process_message_help(app):
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>create: create a new secret santa\nrun {code}: run the secret santa\ncancel {code}: cancel the secret santa\nadd {name} to {code}: to join the secret santa</Body></Message></Response>"""
-    assert process_message("help", settings.TWILIO_WHATSAPP) == xml_response
+    assert process_message("help", settings.TWILIO_NUMBER) == xml_response
 
 
-@mock.patch("app.bot._send_message", side_effect=_send_message_mock)
-def test_response_create_draw(mock_function, app):
+def test_response_create_draw(app):
     # create a new secretsanta
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new Secret Santa!\n*The Secret Santa code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run 1\'.</Body></Message></Response>"""
-    assert process_message("create", settings.TWILIO_WHATSAPP) == xml_response
+    assert process_message("create", settings.TWILIO_NUMBER) == xml_response
 
     secretsanta = SecretSanta.query.filter_by(
-        creator_number=settings.TWILIO_WHATSAPP
+        creator_number=settings.TWILIO_NUMBER
     ).first()
     assert secretsanta
     assert secretsanta.in_process
@@ -74,7 +50,7 @@ def test_run_draw(app):
     participant4 = Participant(name="Katy", number="5571981265144")
     participant5 = Participant(name="Phil", number="5571981265155")
 
-    secretsanta = SecretSanta(creator_number=settings.TWILIO_WHATSAPP, in_process=True)
+    secretsanta = SecretSanta(creator_number=settings.TWILIO_NUMBER, in_process=True)
     secretsanta.participants.extend(
         [participant1, participant2, participant3, participant4, participant5]
     )

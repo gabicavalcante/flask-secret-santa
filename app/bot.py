@@ -2,6 +2,7 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
 from app.models import db, SecretSanta, Participant
+from flask import current_app
 from dynaconf import settings
 
 
@@ -16,13 +17,14 @@ def _send_message(message, number):
     :type number: str
     :param number: number to send the message
     """
-    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    client = Client(
+        current_app.config.TWILIO_ACCOUNT_SID, current_app.config.TWILIO_AUTH_TOKEN
+    )
 
     body = "\n".join(message)
+
     message = client.messages.create(
-        body=body,
-        from_=f"whatsapp:{settings.TWILIO_WHATSAPP}",
-        to=f"whatsapp:{number}",
+        body=body, from_=f"{current_app.config.TWILIO_NUMBER}", to=f"{number}",
     )
 
 
@@ -96,7 +98,7 @@ def process_message(message, number):
 
         response.append(f"*{participant_name}* was added!")
 
-        _send_message(response, ss.creator_number)
+        _send_message(response, f"{ss.creator_number}")
         return _bot_replay(response)
 
     if message.startswith("run "):
@@ -117,7 +119,7 @@ def process_message(message, number):
         for pair in result:
             p1, p2 = pair
             _send_message(
-                [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], p1.number,
+                [f"Hi {p1.name}, you got {p2.name} ({p2.number})!"], f"{p1.number}",
             )
 
         return _bot_replay(["Secret Santa is done!"])

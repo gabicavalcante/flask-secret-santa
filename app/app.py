@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from dynaconf import FlaskDynaconf
 
 
-def create_app(**config):
+def create_app(**config): 
     app = Flask(__name__)
 
     # initialize the FlaskDynaconf extension in our app

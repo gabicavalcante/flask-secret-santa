@@ -3,6 +3,7 @@ DEBUG = false
 CSRF_ENABLED = true
 SQLALCHEMY_TRACK_MODIFICATIONS = false
 TITLE = "Flask Secret Santa"  
+TWILIO_NUMBER = "+14155238886"
 
 [development]
 DEVELOPMENT = true
@@ -10,13 +11,10 @@ DEBUG = true
 SQLALCHEMY_TRACK_MODIFICATIONS = true 
 DB_NAME = "development.db"
 SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
- 
-[production]
-DEBUG = false 
-DB_NAME = "production.db"
-SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
 
 [testing]
 DEBUG = true 
 DB_NAME = "testing.db"
 SQLALCHEMY_DATABASE_URI="@jinja sqlite:///{{ this.DB_NAME | abspath }}"
+TWILIO_NUMBER = "+15005550006"
+ 
