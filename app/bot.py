@@ -74,10 +74,10 @@ def process_message(message, number):
 
         return _bot_replay(response)
 
-    if "add" in message:
+    if message.startswith("add "):
         words = message.split()
         participant_name = " ".join(words[1:-2])
-        code = words[-1].strip()
+        code = int(words[-1].strip())
 
         ss = SecretSanta.query.filter_by(id=code).first()
 
@@ -89,7 +89,7 @@ def process_message(message, number):
             response.append("For example, 'add Bill to 9'")
             return _bot_replay(response)
 
-        participant = Participant.find_or_create(participant_name, number)
+        participant = Participant(name=participant_name, number=number)
         ss.participants.append(participant)
         db.session.add(participant)
         db.session.commit()
@@ -99,8 +99,8 @@ def process_message(message, number):
         _send_message(response, ss.creator_number)
         return _bot_replay(response)
 
-    if "run" in message:
-        code = message.split()[-1]
+    if message.startswith("run "):
+        code = int(message.split()[-1])
         ss = SecretSanta.query.filter_by(id=code).first()
         if not ss:
             response.append(f"There is not Secret Santa with code {code}!")
