@@ -3,7 +3,6 @@ from twilio.twiml.messaging_response import MessagingResponse
 
 from app.models import db, SecretSanta, Participant
 from flask import current_app
-from dynaconf import settings
 
 
 def _send_message(message, number):
@@ -98,7 +97,9 @@ def process_message(message, number):
 
         response.append(f"*{participant_name}* was added!")
 
-        _send_message(response, f"{ss.creator_number}")
+        # check if the participant is the creator
+        if not number == ss.creator_number:
+            _send_message(response, f"{ss.creator_number}")
         return _bot_replay(response)
 
     if message.startswith("run "):
@@ -106,8 +107,8 @@ def process_message(message, number):
         ss = SecretSanta.query.filter_by(id=code).first()
         if not ss:
             response.append(f"There is not Secret Santa with code {code}!")
-            response.append(f"Please, send a message in the form 'run {code}'")
-            response.append("For example, 'run 9'")
+            response.append(f"Please, create a new Secret Santa or use a valid code.")
+            response.append("Send 'help' if you want see the available commands.")
             return _bot_replay(response)
 
         if not ss.in_process:
@@ -123,4 +124,17 @@ def process_message(message, number):
             )
 
         return _bot_replay(["Secret Santa is done!"])
+
+    if message.startswith("cancel "):
+        code = int(message.split()[-1])
+        if not code:
+            return _bot_replay([f"Please, send a valid code."])
+
+        ss = SecretSanta.query.filter_by(id=code).delete()
+        db.session.commit()
+        if not ss:
+            return _bot_replay([f"There is not Secret Santa with code {code}"])
+
+        return _bot_replay([f"Secret Santa {code} was deleted!"])
+
     return _bot_replay(["Sorry, I can't help you :("])
