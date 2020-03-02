@@ -9,7 +9,7 @@ def app():
     return app
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function")
 def db(app):
 
     from app.models import db

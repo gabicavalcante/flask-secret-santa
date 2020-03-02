@@ -7,7 +7,7 @@ def test_process_message_help(app):
     assert process_message("help", app.config.TWILIO_NUMBER) == xml_response
 
 
-def test_response_create_draw(app):
+def test_response_create_draw(app, db):
     # create a new secretsanta
     xml_response = """<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>Hey! You created a new Secret Santa!\n*The Secret Santa code is 1*\nGive to your friends this code.\nWhen they finish, texting \'run 1\'.</Body></Message></Response>"""
     assert process_message("create", app.config.TWILIO_NUMBER) == xml_response
@@ -42,7 +42,7 @@ def test_response_create_draw(app):
     )
 
 
-def test_run_draw(app):
+def test_run_draw(app, db):
     participant1 = Participant(name="Ana", number="5571981265131")
     participant2 = Participant(name="Bil", number="5571981265132")
     participant3 = Participant(name="Carl", number="5571981265133")
